@@ -1,0 +1,34 @@
+{
+  "name": "dsl-tensorflow-classifier",
+  "version": "1.0.0",
+  "description": "Data Science Lab's plugin using tensorflow to classify labels from features.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && npm run jasmine && npm run clean",
+    "jasmine": "jasmine --config=./spec/support/jasmine.json || exit 0",
+    "clean": "rmdir /q /s dist || exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/data-science-lab-app/dsl-tensorflow-classifier.git"
+  },
+  "author": "Cobe Greene",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/data-science-lab-app/dsl-tensorflow-classifier/issues"
+  },
+  "homepage": "https://github.com/data-science-lab-app/dsl-tensorflow-classifier#readme",
+  "data_science_lab": [],
+  "dependencies": {
+    "data-science-lab-core": "^0.0.29"
+  },
+  "devDependencies": {
+    "@types/node": "^12.11.1",
+    "typescript": "^3.6.3",
+    "jasmine": "^3.5.0",
+    "@types/jasmine": "^3.4.0",
+    "jasmine-ts-console-reporter": "^3.1.1"
+  }
+}
