@@ -20,9 +20,17 @@
     "url": "https://github.com/data-science-lab-app/dsl-tensorflow-classifier/issues"
   },
   "homepage": "https://github.com/data-science-lab-app/dsl-tensorflow-classifier#readme",
-  "data_science_lab": [],
+  "data_science_lab": [
+    {
+      "name": "Tensorflow 1D CNN Classifier",
+      "type": "Algorithm",
+      "classname": "Tensorflow1dCnnClassifier"
+    }
+  ],
   "dependencies": {
-    "data-science-lab-core": "^0.0.29"
+    "data-science-lab-core": "^0.0.30",
+    "@tensorflow/tfjs": "^1.7.3",
+    "@tensorflow/tfjs-node": "^1.7.3"
   },
   "devDependencies": {
     "@types/node": "^12.11.1",
