@@ -144,11 +144,25 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
     };
     Tensorflow1dCnnClassifier.prototype.step = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.data.model.fit(this.data.trainX, this.data.trainLabels, {
                             batchSize: this.data.batchSize,
                             epochs: 1,
+                            yieldEvery: 125,
+                            callbacks: {
+                                onYield: function (batch, logs) { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0: return [4 /*yield*/, tf.nextFrame()];
+                                            case 1:
+                                                _a.sent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); }
+                            }
                         })];
                     case 1:
                         (_a.sent());

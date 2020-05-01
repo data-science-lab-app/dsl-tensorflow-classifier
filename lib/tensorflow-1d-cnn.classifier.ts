@@ -2,6 +2,7 @@ import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, CheckboxOption, R
 import * as tf from '@tensorflow/tfjs';
 
 import * as tf_node from '@tensorflow/tfjs-node';
+import { nextFrame } from '@tensorflow/tfjs';
 
 interface Tensorflow1dCnnClassifierInput {
     inputData: number[][];
@@ -125,6 +126,12 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
         (await this.data.model.fit(this.data.trainX, this.data.trainLabels, {
             batchSize: this.data.batchSize,
             epochs: 1,
+            yieldEvery: 125,
+            callbacks: {
+                onYield: async (batch, logs) => {
+                    await tf.nextFrame()
+                }
+            }
         }));
     }
 
