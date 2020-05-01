@@ -104,7 +104,7 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
             return label;
         });
         var tfData = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
-        var tfLabels = tf.tensor2d(this.data.inputLabels, [this.data.inputLabels.length, this.data.labels.length]);
+        var tfLabels = tf.tensor2d(labels, [this.data.inputLabels.length, this.data.labels.length]);
         _a = tf.tidy(function () {
             return [
                 tfData.reshape([_this.data.inputData.length, _this.data.inputData[0].length, 1]),
