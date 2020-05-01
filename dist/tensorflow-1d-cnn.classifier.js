@@ -152,6 +152,9 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                             epochs: 1,
                             yieldEvery: 125,
                             callbacks: {
+                                onBatchEnd: function () {
+                                    _this.data.model.stopTraining = true;
+                                },
                                 onYield: function (batch, logs) { return __awaiter(_this, void 0, void 0, function () {
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {

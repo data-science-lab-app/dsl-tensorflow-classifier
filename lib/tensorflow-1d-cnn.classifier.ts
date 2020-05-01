@@ -128,6 +128,9 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
             epochs: 1,
             yieldEvery: 125,
             callbacks: {
+                onBatchEnd: () => {
+                    this.data.model.stopTraining = true;
+                },
                 onYield: async (batch, logs) => {
                     await tf.nextFrame()
                 }
