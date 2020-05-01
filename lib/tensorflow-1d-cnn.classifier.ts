@@ -1,7 +1,7 @@
 import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, CheckboxOption, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
 
-require('@tensorflow/tfjs-node');
+import * as tf_node from '@tensorflow/tfjs-node'; 
 
 interface Tensorflow1dCnnClassifierInput {
     inputData: number[][];
@@ -178,7 +178,7 @@ class Tensorflow1dCnnClassifierPluginOptions extends PluginOptions {
     constructor(public classifier: Tensorflow1dCnnClassifier) {
         super();
         this.state = 1;
-        this.labels = classifier.autoDetect();
+        this.labels = [];
     }
 
     submit(inputs: { [id: string]: any; }): void {
@@ -186,6 +186,7 @@ class Tensorflow1dCnnClassifierPluginOptions extends PluginOptions {
             case 1:
                 this.classifier.setActivation(inputs['activation']);
                 this.classifier.setBatchSize(inputs['batch']);
+                this.labels = this.classifier.autoDetect();
                 this.state = 2;
                 break;
             case 3:

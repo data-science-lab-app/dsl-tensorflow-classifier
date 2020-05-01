@@ -51,7 +51,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var data_science_lab_core_1 = require("data-science-lab-core");
 var tf = require("@tensorflow/tfjs");
-require('@tensorflow/tfjs-node');
 var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
     __extends(Tensorflow1dCnnClassifier, _super);
     function Tensorflow1dCnnClassifier() {
@@ -204,7 +203,7 @@ var Tensorflow1dCnnClassifierPluginOptions = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.classifier = classifier;
         _this.state = 1;
-        _this.labels = classifier.autoDetect();
+        _this.labels = [];
         return _this;
     }
     Tensorflow1dCnnClassifierPluginOptions.prototype.submit = function (inputs) {
@@ -212,6 +211,7 @@ var Tensorflow1dCnnClassifierPluginOptions = /** @class */ (function (_super) {
             case 1:
                 this.classifier.setActivation(inputs['activation']);
                 this.classifier.setBatchSize(inputs['batch']);
+                this.labels = this.classifier.autoDetect();
                 this.state = 2;
                 break;
             case 3:
