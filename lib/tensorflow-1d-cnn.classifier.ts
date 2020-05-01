@@ -1,14 +1,14 @@
 import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, CheckboxOption, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
 
-import * as tf_node from '@tensorflow/tfjs-node'; 
+import * as tf_node from '@tensorflow/tfjs-node';
 
 interface Tensorflow1dCnnClassifierInput {
     inputData: number[][];
     inputLabels: number[][];
     labels: number[];
     activation: string;
-    trainX: tf.Tensor2D;
+    trainX: tf.Tensor3D;
     trainLabels: tf.Tensor2D;
     model: tf.Sequential;
     batchSize: number;
@@ -63,7 +63,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
 
     test(argument: {
         [id: string]: any[];
-    }): {[id: string]: any[]} {
+    }): { [id: string]: any[] } {
         throw new Error('Not implemented');
     }
 
@@ -74,14 +74,16 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
             return label;
         });
 
+        const tfData = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
+        const tfLabels = tf.tensor2d(this.data.inputLabels, [this.data.inputLabels.length, this.data.labels.length]);
+
+
         [this.data.trainX, this.data.trainLabels] = tf.tidy(() => {
             return [
-                tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]).reshape([this.data.inputData.length, this.data.inputData[0].length, 1] as any),
-                tf.tensor2d(labels, [this.data.inputLabels.length, this.data.labels.length])
+                tfData.reshape<tf.Rank.R3>([this.data.inputData.length, this.data.inputData[0].length, 1]),
+                tfLabels
             ];
         });
-
-        this.data.trainX = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
 
         this.data.model = tf.sequential();
 

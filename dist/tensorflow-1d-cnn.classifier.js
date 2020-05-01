@@ -103,13 +103,14 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
             label[_this.data.labels.indexOf(value[0])] = 1.0;
             return label;
         });
+        var tfData = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
+        var tfLabels = tf.tensor2d(this.data.inputLabels, [this.data.inputLabels.length, this.data.labels.length]);
         _a = tf.tidy(function () {
             return [
-                tf.tensor2d(_this.data.inputData, [_this.data.inputData.length, _this.data.inputData[0].length]).reshape([_this.data.inputData.length, _this.data.inputData[0].length, 1]),
-                tf.tensor2d(labels, [_this.data.inputLabels.length, _this.data.labels.length])
+                tfData.reshape([_this.data.inputData.length, _this.data.inputData[0].length, 1]),
+                tfLabels
             ];
         }), this.data.trainX = _a[0], this.data.trainLabels = _a[1];
-        this.data.trainX = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
         this.data.model = tf.sequential();
         this.data.model.add(tf.layers.conv1d({
             inputShape: [this.data.inputData[0].length, 1],

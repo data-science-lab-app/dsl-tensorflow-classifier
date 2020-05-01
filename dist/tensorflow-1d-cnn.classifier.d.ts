@@ -5,7 +5,7 @@ interface Tensorflow1dCnnClassifierInput {
     inputLabels: number[][];
     labels: number[];
     activation: string;
-    trainX: tf.Tensor2D;
+    trainX: tf.Tensor3D;
     trainLabels: tf.Tensor2D;
     model: tf.Sequential;
     batchSize: number;
