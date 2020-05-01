@@ -75,7 +75,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
         });
 
         const tfData = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
-        const tfLabels = tf.tensor2d(this.data.inputLabels, [this.data.inputLabels.length, this.data.labels.length]);
+        const tfLabels = tf.tensor2d(labels, [this.data.inputLabels.length, this.data.labels.length]);
 
 
         [this.data.trainX, this.data.trainLabels] = tf.tidy(() => {
