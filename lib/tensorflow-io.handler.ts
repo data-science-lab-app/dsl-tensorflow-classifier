@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs';
 
 interface ModelJson {
     artifact: tf.io.ModelArtifacts,
-    weights?: string
+    weights?: string;
 }
 
 export class TensorflowIOHandler implements tf.io.IOHandler {
@@ -22,15 +22,7 @@ export class TensorflowIOHandler implements tf.io.IOHandler {
                     data.artifact.weightData = undefined;
                 }
                 this.json = JSON.stringify(data);
-                resolve({
-                    modelArtifactsInfo: {
-                        dateSaved: new Date(),
-                        modelTopologyType: 'JSON',
-                        modelTopologyBytes: modelArtifact.modelTopology == null ? 0 : Buffer.byteLength(JSON.stringify(modelArtifact.modelTopology), 'utf-8'),
-                        weightSpecsBytes: modelArtifact.weightSpecs == null ? 0 : Buffer.byteLength(JSON.stringify(modelArtifact.weightSpecs), 'utf-8'),
-                        weightDataBytes: weightData == null ? 0 : weightData.byteLength
-                    }
-                });
+                resolve();
             });
         }
     };
@@ -60,13 +52,11 @@ export class TensorflowIOHandler implements tf.io.IOHandler {
     }
 
     async saveWeights(weights: ArrayBuffer): Promise<string> {
-        const buffer = Buffer.from(weights);
-        return JSON.stringify(buffer.toJSON());
+        return Buffer.from(weights).toString('binary');
     }
 
     async loadWeights(weights: string): Promise<ArrayBuffer> {
-        var buffer = Buffer.from(JSON.parse(weights));
-        const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-        return arrayBuffer;
+        const buffer = Buffer.from(weights, 'binary');
+        return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
     }
 }

@@ -269,7 +269,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             });
 
             it('training few steps should be able to predict the training set', async () => {
-                for (let i = 0; i < 1000; ++i) {
+                for (let i = 0; i < 100; ++i) {
                     await classifier.step();
                 }
                 for (let i = 0; i < testingInput.output.examples.length; ++i) {
@@ -283,7 +283,24 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             it('export and import without minimial should be able to train', async () => {
                 const json = await classifier.export(false);
                 let newClassifier = await (new Tensorflow1dCnnClassifier()).import(json, false);
-                for (let i = 0; i < 1000; ++i) {
+                for (let i = 0; i < 100; ++i) {
+                    await newClassifier.step();
+                }
+                for (let i = 0; i < testingInput.output.examples.length; ++i) {
+                    const actual = newClassifier.test(
+                        { 'input': testingInput.input.examples[i] }
+                    );
+                    expect(actual.output).toEqual(testingInput.output.examples[i]);
+                }
+            });
+            
+            it('train most export and import without minimial should be able to train rest', async () => {
+                for (let i = 0; i < 90; ++i) {
+                    await classifier.step();
+                }
+                const json = await classifier.export(false);
+                let newClassifier = await (new Tensorflow1dCnnClassifier()).import(json, false);
+                for (let i = 0; i < 10; ++i) {
                     await newClassifier.step();
                 }
                 for (let i = 0; i < testingInput.output.examples.length; ++i) {
@@ -295,7 +312,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             });
     
             it('testing after export minimal should still work', async () => {
-                for (let i = 0; i < 1000; ++i) {
+                for (let i = 0; i < 100; ++i) {
                     await classifier.step();
                 } 
                 const json = await classifier.export(true);

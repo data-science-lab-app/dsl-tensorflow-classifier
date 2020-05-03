@@ -1,0 +1,219 @@
+{
+    "artifact": {
+        "modelTopology": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential_6",
+                "layers": [
+                    {
+                        "class_name": "Conv1D",
+                        "config": {
+                            "filters": 8,
+                            "kernel_initializer": {
+                                "class_name": "VarianceScaling",
+                                "config": {
+                                    "scale": 1,
+                                    "mode": "fan_in",
+                                    "distribution": "normal",
+                                    "seed": null
+                                }
+                            },
+                            "kernel_regularizer": null,
+                            "kernel_constraint": null,
+                            "kernel_size": [
+                                5
+                            ],
+                            "strides": [
+                                1
+                            ],
+                            "padding": "valid",
+                            "dilation_rate": [
+                                1
+                            ],
+                            "activation": "relu",
+                            "use_bias": true,
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "bias_constraint": null,
+                            "name": "conv1d_Conv1D11",
+                            "trainable": true,
+                            "batch_input_shape": [
+                                null,
+                                25,
+                                1
+                            ],
+                            "dtype": "float32"
+                        }
+                    },
+                    {
+                        "class_name": "MaxPooling1D",
+                        "config": {
+                            "pool_size": [
+                                2
+                            ],
+                            "padding": "valid",
+                            "strides": [
+                                2
+                            ],
+                            "name": "max_pooling1d_MaxPooling1D11",
+                            "trainable": true
+                        }
+                    },
+                    {
+                        "class_name": "Conv1D",
+                        "config": {
+                            "filters": 16,
+                            "kernel_initializer": {
+                                "class_name": "VarianceScaling",
+                                "config": {
+                                    "scale": 1,
+                                    "mode": "fan_in",
+                                    "distribution": "normal",
+                                    "seed": null
+                                }
+                            },
+                            "kernel_regularizer": null,
+                            "kernel_constraint": null,
+                            "kernel_size": [
+                                5
+                            ],
+                            "strides": [
+                                1
+                            ],
+                            "padding": "valid",
+                            "dilation_rate": [
+                                1
+                            ],
+                            "activation": "relu",
+                            "use_bias": true,
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "bias_constraint": null,
+                            "name": "conv1d_Conv1D12",
+                            "trainable": true
+                        }
+                    },
+                    {
+                        "class_name": "MaxPooling1D",
+                        "config": {
+                            "pool_size": [
+                                2
+                            ],
+                            "padding": "valid",
+                            "strides": [
+                                2
+                            ],
+                            "name": "max_pooling1d_MaxPooling1D12",
+                            "trainable": true
+                        }
+                    },
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten_Flatten6",
+                            "trainable": true
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "units": 3,
+                            "activation": "softmax",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "VarianceScaling",
+                                "config": {
+                                    "scale": 1,
+                                    "mode": "fan_in",
+                                    "distribution": "normal",
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null,
+                            "name": "dense_Dense6",
+                            "trainable": true
+                        }
+                    }
+                ]
+            },
+            "keras_version": "tfjs-layers 1.7.3",
+            "backend": "tensor_flow.js"
+        },
+        "format": "layers-model",
+        "generatedBy": "TensorFlow.js tfjs-layers v1.7.3",
+        "convertedBy": null,
+        "weightsManifest": [
+            {
+                "paths": [
+                    "./"
+                ],
+                "weights": [
+                    {
+                        "name": "conv1d_Conv1D11/kernel",
+                        "shape": [
+                            5,
+                            1,
+                            8
+                        ],
+                        "dtype": "float32"
+                    },
+                    {
+                        "name": "conv1d_Conv1D11/bias",
+                        "shape": [
+                            8
+                        ],
+                        "dtype": "float32"
+                    },
+                    {
+                        "name": "conv1d_Conv1D12/kernel",
+                        "shape": [
+                            5,
+                            8,
+                            16
+                        ],
+                        "dtype": "float32"
+                    },
+                    {
+                        "name": "conv1d_Conv1D12/bias",
+                        "shape": [
+                            16
+                        ],
+                        "dtype": "float32"
+                    },
+                    {
+                        "name": "dense_Dense6/kernel",
+                        "shape": [
+                            48,
+                            3
+                        ],
+                        "dtype": "float32"
+                    },
+                    {
+                        "name": "dense_Dense6/bias",
+                        "shape": [
+                            3
+                        ],
+                        "dtype": "float32"
+                    }
+                ]
+            }
+        ]
+    },
+    "weights": "��\u0010?Ƒ�>��\u001b��=C��Ye�C�y><�\u0007<aw�>���>\u0003�>$���`c\n><�1>o��>g\u001d$?�7(���\\?,��=��̼:�\u0004>�7d�=%{�K;�>�4\u0006�V(�>܉l;\u001c��=8�-��\u00193>�@���^�>!v��I�J���\u0002�I��>´���\u0016\"?+�[���=���>��\u000b<��\u0013�n�˻��N�G�\u001e�~�����\u0014���ֻ�A�>5�ؽ\u0000�'>.+p>p�\u001f�\u001f��=�\u0004(>F�C��\u001b=G5D�\u0001\u0017���4}���x>�e@�\\H���߄�,�\u001a�\u0017�\u0005>\u0012�f>�A���j���\u0005m>?�7�\u0014Ɠ>�1�=(�X>Fp\u000e=���=��K��<&����=\u0016��=�m\u001a�n����:l��M1=/Ɠ�x����7\b<�\u0017`>��x>�V\u0005��@�&�\u0003>������Q��㌾�]\u0006�\u0012��=ɷ��w�\u001f�d6]�4�h>�j\t=\u00130�=���;ߦt=�ٜ=��&>ekb>��x<k�J=\u001c-ؽ3ZԼϕ\u0006=�{n=>Qk>�Z��[v��Ƚ=t,\u0012>|\u0016t>\r�H<\u0006�=>ܤ�w�2��Ŗ�l4\u0018���k���\u0010>#�p�Sw-�\nww>1~0���=�x<�*a>X�H��K����Z>ͪ��Au���P�=�\u0015��p�\\�'}\u000f<'�j��7���\u0007�=�\u001eS�0mC��)�=�1)<ĭ���\"v�f�㽶G�=}\u0005\u0012��<\u0013���\u0010�y6]>�-\f�e\u0004�<8�f��\u0002���~���00�\u0010��\u0019I]��E%>\r\n-��ظ=V�Y=�\n뽩��=��\u001d>�D{��^��\u0000+7=�{P�r:\u0004�\u000b\"\u001f�@�?>0Z��[�޽VM#�\u0019��<�W4����|\t\u0015<�w\u001e��&ܽf,1������,9>�x�=\u0014m����Լ�r�<嫨�3�0>�!>���>�\u0007�=\u0000[�>Y����\f�=�@�=\u0019ò��1�=n,B��v�=�il<���=?�;<\u0006g�=�\u0004�;�\u0003(=N�S�-�\u0019�1�7�\u001e���}l/>PV�%���J��k'�=\u0010$N<@e�=��\u001f=6�����=c,[>��Z�f���&Ό�x~�=��߽�\"\u0010�UM�=�S >׵(=m*j�E��<�\u0010>���=\u001e��=��_>�\u0007�<-�T>��L>�m2�t�\u0002�<t\u0013�B�\u0007=\u000b2-=8s}�ę�=6����<\u0010���\u000f>��{>_��=\u001e�%��7@>�\u0004��>�z��jٽ�\u000bu>L�ؽ��9�=G|=��?>כD��� >���6�c�Ћ�>�+&�5���R�I����=��'<��̽��\u0013��d\u000b>�\u001b���g�=�O�=n\u0012\u0001>�2=:\b3��\u0001��>\u0003P�=��\u0006>���=�#2>)D�=Q(a��Q}<8\u0012�<ܫ\u0010�ܜJ>������P��7����+=u\u001a%��23=0\f\u001c�<�\u0006>���=\u0012*P��B&����>�\n��D��=ZE۽������\u000f�\n�+��6�=�W�ޭ\u001a>=�1���0�\u0003D�� ���<�y��<�G[>�x��\u0010�Aj\u0001���b>�\u0017 >�11>)��\u0002��<�+��Ӭ/����>�\u00153>�!��z�K�V�\u0005��;Q�U`\u0016��\u000b�>�\u0019����n�Bō�J-9=�\b ;�j���q�=A1�=j\u0016�=ax�=�H�=YY\u001e=i��=\u0018\u0001\u0004>���<\u0000.,������\t�={���\u0005�\u0004�\n��=��\u0015�\u0012�ֹx��>��A>6��<�\u000e\u000f�B��=޳�<3\u0016s>������a>\u0000\u0016\u0003����;�w\u000e>dE==7[�=9$b<�^\u0005=[S�;k��K4==���=-�K�r����&\u0015��}\u0005�;�#�\u0016�I=��\b>D\u0010�>�\u00067�?�\u0016�Iř��\\P��\u0002\u0004=ZH��\u0006�#=i=���{���`��H˽1�9�\u0006��=�p4=���=ys�=��4>R\u0011%>�\u0019\u0013>�\r2>��>p2�=\u0000h���AZ�?%$>�n�=�9���w�=\u000b\u001fJ>�Y\u001c�\u0000Ž�T�@���M<\u0004��=��\u000f=I�,����9�'�m �=hH'�.d׽�ŀ��?�>�\u0002�<�$\u0012>�>h>m�$��r�<\"-F>�\u0004)<1�\u0000��j��N5�=H0����f<bh\u0011>O{�=?�s�\u0017��2p=C@Z��\u001d\u0007>��o=�\u001d\u0007>?Y\u000b=qKm����;z�署�Q>�sZ���^�Q\n\u000f��\u001fW�C\u001f$>�kp�W����\u000bA�@�:>�Z纇z�����+��=\u001f���\u0005\n\u0005����=\u0018��<\u0014��=�p��P6�����=�RȽi��=k\n\u0012>�u��qh\u0002��'���_��F\\=x�����\u000e�A��=RsE=uw\u001a�7I�=߹8�K\u001b7>i\u0004*>gT�<���=�T7>����o���>`M�\u0012LD��\u001aǽ�Kz�^�[���t�u���G\u0007����=�j�;\b@��s�\u001a>�yC��⵽��4�n\u001c\r>a����)r<�d��Q��A\u0015=\u000e�w>G��<�ơ=�����9���rC��\u001ce>)v\u0016>�sR>��\u001a�\u001e{�='\u0007ƼP_K>^(�>;-8>5]I>�����\u0013�<\u0005�\u0015�c\u0012/;1.��M~��\u0000R@>Y�z�jk���jw����>���=��=!\u0019\u0014>�?\u0014��x�=b�+=ݑ\u0006=5�Z��\u001a�=c��>:ޚ�[��=M��<�4\u0003���&>�[�<ﰤ�g\u0005�����=\u0018[��BG��hކ=��a>6 ���\u001a\u0014>�\\��6 ,��v��Qr\u0014����>\u000f/\u0017�t�:���\u001e>(N\u000f���0�|/\u0001�&ܸ��Q����ȼ!�P=\u000bL~�\u0011�^>�Q ��hJ��ݓ=�\u001c�<R�ܽdM�<\u0011��=�۫=%�x<A�ӽ\u000bK��?'��В�=�7@���<D��==\u0010\r�;�f��k��G�C>��6�N\u0004!���\u001a��C\u001c>\t�\u001a�\u0004c����\u0004��L�����>\u001b)&>\u001a�4�/[�>��˻o�+>��u��\u001d��ɪI��+�=�\u0018/�2u�=��\u001e��\u0016㽄ɪ<�uH=�ic�\"\u0002v�\u001d�>�a\u0017�R\u0000ν4C�>U-�=� �={\u0007�=\u001b�6=��=�I��M�\u000b>2�\u0018��z�=�8#=���=�)�>�%�ۉ����7>/��>\u001d �������;�>�H�<\u0000��=\u001b0O�c%a�\u001bRԽ��\u0004�{\u0010&>{�e�%݋��V0>�ts=1��=1(\u0006��h���\u0004�=�te>\u001c�(=�v��\u0014�!>\u0011\u0019\r�\u0000\u0000\u0000\u0000s\u0002v�>F ��D <\u001b�\u001f��\u001a��L��:z��;Q�\u0014���\u0014�A�\u0019<dr\u0002<�\u000f��՗�;=v\u000b�Ԥ?�\u0002�\u0010��9\u0013>\b���XY��E~��5�5>�\u0015k�G�ڽ�潣��<�>$>�\u0001�==��<�_Ƚ�vu�\t��b\u001a�=F��=��T��dD<��\u0002��H\u0011>a���K�1>3R�=\\�+=�|��\u0007;���;\u001a=Z�3�����eZ\u000b>R��={�ý�{��h/ѽc�\u0000>y��㇌>�Q\u001f��}�=yN\u001f=c�`=\u001cY�<j}�<�1\u0016��\"o�g\th�Qd�=��1���|�\u001e�\u001f����=�k�<\n�S>�����u�q���\u0005|�=�OI>\u001a�\u0015��Է�r�)�L;���\u001f��P[.�ĜT�,w�=���=�0�=�\"S=u�q�b]�=��!=q}��_o\u0001�\u0014\"{>���=���<���=E�Y����<s�a>��򵻽��\t�x�=\u0019f��\"�\u0001=�_\u000e>�xq=N�1=|\u0016>>h�h>��,>�x���)\u0003�6�;>F!�=L\u001f�=Mѕ<� ��ɭ���\u0012->������\u0000>B�a=�!#=D���\"GL��<�=&\u001d-=X�\u0019>|b\u0003>���<\n�q=�\u0002\u001f>��>�*\u0015=�;.>^1\t>啥=;�C>�g���/ѽhA�;2i%=A�)>0�\u0001���޽��B>T���p\u001fk��J߽�v\u001d��~���&�=i��=x\fE��:8=�ȧ<ƛϼ�:�=��\";Q7�;�W\u001b�"
+}
