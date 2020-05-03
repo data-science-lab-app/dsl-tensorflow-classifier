@@ -51,6 +51,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var data_science_lab_core_1 = require("data-science-lab-core");
 var tf = require("@tensorflow/tfjs");
+var tensorflow_io_handler_1 = require("./tensorflow-io.handler");
 var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
     __extends(Tensorflow1dCnnClassifier, _super);
     function Tensorflow1dCnnClassifier() {
@@ -80,26 +81,93 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
     };
     Tensorflow1dCnnClassifier.prototype.export = function (minimal) {
         return __awaiter(this, void 0, void 0, function () {
+            var handler, data, data;
             return __generator(this, function (_a) {
-                return [2 /*return*/, ''];
+                switch (_a.label) {
+                    case 0:
+                        handler = new tensorflow_io_handler_1.TensorflowIOHandler();
+                        return [4 /*yield*/, this.data.model.save(handler)];
+                    case 1:
+                        _a.sent();
+                        if (minimal) {
+                            data = {
+                                labels: this.data.labels,
+                                model_config: handler.json
+                            };
+                            return [2 /*return*/, JSON.stringify(data)];
+                        }
+                        else {
+                            data = {
+                                batchSize: this.data.batchSize,
+                                inputData: this.data.inputData,
+                                inputLabels: this.data.inputLabels,
+                                labels: this.data.labels,
+                                model_config: handler.json
+                            };
+                            return [2 /*return*/, JSON.stringify(data)];
+                        }
+                        return [2 /*return*/];
+                }
             });
         });
     };
     Tensorflow1dCnnClassifier.prototype.import = function (json, minimal) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this];
+            var data, handler, _a, data, handler, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (!minimal) return [3 /*break*/, 2];
+                        data = JSON.parse(json);
+                        this.data.labels = data.labels;
+                        handler = new tensorflow_io_handler_1.TensorflowIOHandler(data.model_config);
+                        _a = this.data;
+                        return [4 /*yield*/, (tf.loadLayersModel(handler))];
+                    case 1:
+                        _a.model = (_c.sent());
+                        return [3 /*break*/, 4];
+                    case 2:
+                        data = JSON.parse(json);
+                        this.data.labels = data.labels;
+                        this.data.batchSize = data.batchSize;
+                        this.data.inputData = data.inputData;
+                        this.data.inputLabels = data.inputLabels;
+                        handler = new tensorflow_io_handler_1.TensorflowIOHandler(data.model_config);
+                        _b = this.data;
+                        return [4 /*yield*/, tf.loadLayersModel(handler)];
+                    case 3:
+                        _b.model = (_c.sent());
+                        this.generateTestingData();
+                        this.compileModel();
+                        _c.label = 4;
+                    case 4: return [2 /*return*/, this];
+                }
             });
         });
     };
-    Tensorflow1dCnnClassifier.prototype.test = function (argument) {
-        throw new Error('Not implemented');
+    Tensorflow1dCnnClassifier.prototype.compileModel = function () {
+        var optimizer = tf.train.adam();
+        this.data.model.compile({
+            optimizer: optimizer,
+            loss: 'categoricalCrossentropy',
+            metrics: ['accuracy', 'mse'],
+        });
     };
-    Tensorflow1dCnnClassifier.prototype.initialize = function () {
+    Tensorflow1dCnnClassifier.prototype.test = function (argument) {
+        var argumentInput = argument['input'];
+        var tfData = tf.tensor2d(argumentInput, [1, argumentInput[0].length]);
+        var testInput = tfData.reshape([1, argumentInput[0].length, 1]);
+        var testOutput = this.data.model.predict(testInput);
+        var output = testOutput.arraySync()[0];
+        return {
+            'output': [this.data.labels[output.indexOf(Math.max.apply(Math, output))]]
+        };
+    };
+    Tensorflow1dCnnClassifier.prototype.generateTestingData = function () {
         var _a;
         var _this = this;
         var labels = this.data.inputLabels.map(function (value) {
-            var label = Array(10).fill(0.0);
+            var label = Array(_this.data.labels.length).fill(0.0);
             label[_this.data.labels.indexOf(value[0])] = 1.0;
             return label;
         });
@@ -111,6 +179,9 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                 tfLabels
             ];
         }), this.data.trainX = _a[0], this.data.trainLabels = _a[1];
+    };
+    Tensorflow1dCnnClassifier.prototype.initialize = function () {
+        this.generateTestingData();
         this.data.model = tf.sequential();
         this.data.model.add(tf.layers.conv1d({
             inputShape: [this.data.inputData[0].length, 1],
@@ -135,12 +206,7 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
             kernelInitializer: 'varianceScaling',
             activation: this.data.activation
         }));
-        var optimizer = tf.train.adam();
-        this.data.model.compile({
-            optimizer: optimizer,
-            loss: 'categoricalCrossentropy',
-            metrics: ['accuracy'],
-        });
+        this.compileModel();
     };
     Tensorflow1dCnnClassifier.prototype.step = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -150,21 +216,27 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                     case 0: return [4 /*yield*/, this.data.model.fit(this.data.trainX, this.data.trainLabels, {
                             batchSize: this.data.batchSize,
                             epochs: 1,
-                            yieldEvery: 125,
                             callbacks: {
-                                onBatchEnd: function () {
+                                onBatchEnd: function (batch, logs) {
+                                    var _a;
                                     _this.data.model.stopTraining = true;
-                                },
-                                onYield: function (batch, logs) { return __awaiter(_this, void 0, void 0, function () {
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0: return [4 /*yield*/, tf.nextFrame()];
-                                            case 1:
-                                                _a.sent();
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                }); }
+                                    if (logs) {
+                                        (_a = _this.recorder) === null || _a === void 0 ? void 0 : _a.record([
+                                            {
+                                                label: 'Mean Squared Error',
+                                                value: logs['mse'],
+                                            },
+                                            {
+                                                label: 'Accuracy',
+                                                value: logs['acc'],
+                                            },
+                                            {
+                                                label: 'Loss',
+                                                value: logs['loss'],
+                                            }
+                                        ]);
+                                    }
+                                }
                             }
                         })];
                     case 1:
@@ -285,7 +357,7 @@ var Tensorflow1dCnnClassifierPluginOptions = /** @class */ (function (_super) {
                     new data_science_lab_core_1.NumberOption({
                         id: 'batch',
                         label: 'Choose a batch size',
-                        min: 100,
+                        min: 1,
                         step: 100
                     })
                 ];

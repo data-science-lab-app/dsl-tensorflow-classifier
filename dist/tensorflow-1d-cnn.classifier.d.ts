@@ -24,11 +24,13 @@ export declare class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
     finishTraining(): boolean;
     export(minimal: boolean): Promise<string>;
     import(json: string, minimal: boolean): Promise<Tensorflow1dCnnClassifier>;
+    compileModel(): void;
     test(argument: {
         [id: string]: any[];
     }): {
         [id: string]: any[];
     };
+    generateTestingData(): void;
     initialize(): void;
     step(): Promise<void>;
     autoDetect(): number[];

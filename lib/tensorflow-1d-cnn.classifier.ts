@@ -1,8 +1,7 @@
-import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, CheckboxOption, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
+import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
-
-import * as tf_node from '@tensorflow/tfjs-node';
-import { nextFrame } from '@tensorflow/tfjs';
+import { Rank } from '@tensorflow/tfjs';
+import { TensorflowIOHandler } from './tensorflow-io.handler';
 
 interface Tensorflow1dCnnClassifierInput {
     inputData: number[][];
@@ -13,6 +12,20 @@ interface Tensorflow1dCnnClassifierInput {
     trainLabels: tf.Tensor2D;
     model: tf.Sequential;
     batchSize: number;
+}
+
+
+interface Tensorflow1dCnnClassifierData {
+    inputData: number[][];
+    inputLabels: number[][];
+    labels: number[];
+    batchSize: number;
+    model_config: string;
+}
+
+interface Tensorflow1dCnnClassifierMinimalData {
+    labels: number[];
+    model_config: string;
 }
 
 export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
@@ -55,22 +68,73 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
     }
 
     async export(minimal: boolean): Promise<string> {
-        return '';
+        const handler = new TensorflowIOHandler();
+        await this.data.model.save(handler);
+        if (minimal) {
+            const data: Tensorflow1dCnnClassifierMinimalData = {
+                labels: this.data.labels,
+                model_config: handler.json as string
+            };
+            return JSON.stringify(data);
+        } else {
+            const data: Tensorflow1dCnnClassifierData = {
+                batchSize: this.data.batchSize,
+                inputData: this.data.inputData,
+                inputLabels: this.data.inputLabels,
+                labels: this.data.labels,
+                model_config: handler.json as string
+
+            };
+            return JSON.stringify(data);
+        }
     }
 
     async import(json: string, minimal: boolean): Promise<Tensorflow1dCnnClassifier> {
+        if (minimal) {
+            const data = JSON.parse(json) as Tensorflow1dCnnClassifierMinimalData;
+            this.data.labels = data.labels;
+            const handler = new TensorflowIOHandler(data.model_config);
+            this.data.model = await (tf.loadLayersModel(handler)) as tf.Sequential;
+        } else {
+            const data = JSON.parse(json) as Tensorflow1dCnnClassifierData;
+            this.data.labels = data.labels;
+            this.data.batchSize = data.batchSize;
+            this.data.inputData = data.inputData;
+            this.data.inputLabels = data.inputLabels;
+            const handler = new TensorflowIOHandler(data.model_config);
+            this.data.model = (await tf.loadLayersModel(handler)) as tf.Sequential;
+            this.generateTestingData();
+            this.compileModel();
+        }
         return this;
+    }
+
+    compileModel() {
+        const optimizer = tf.train.adam();
+        this.data.model.compile({
+            optimizer: optimizer,
+            loss: 'categoricalCrossentropy',
+            metrics: ['accuracy', 'mse'],
+        });
     }
 
     test(argument: {
         [id: string]: any[];
     }): { [id: string]: any[] } {
-        throw new Error('Not implemented');
+        const argumentInput = (argument['input'] as number[][]);
+        const tfData = tf.tensor2d(argumentInput, [1, argumentInput[0].length]);
+        const testInput = tfData.reshape<tf.Rank.R3>([1, argumentInput[0].length, 1]);
+
+        const testOutput = this.data.model.predict(testInput) as tf.Tensor<Rank.R2>;
+        const output = testOutput.arraySync()[0];
+        return {
+            'output': [this.data.labels[output.indexOf(Math.max(...output))]]
+        }
     }
 
-    initialize() {
+    generateTestingData() {
         const labels = this.data.inputLabels.map((value) => {
-            const label = Array(10).fill(0.0);
+            const label = Array(this.data.labels.length).fill(0.0);
             label[this.data.labels.indexOf(value[0])] = 1.0;
             return label;
         });
@@ -78,13 +142,16 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
         const tfData = tf.tensor2d(this.data.inputData, [this.data.inputData.length, this.data.inputData[0].length]);
         const tfLabels = tf.tensor2d(labels, [this.data.inputLabels.length, this.data.labels.length]);
 
-
         [this.data.trainX, this.data.trainLabels] = tf.tidy(() => {
             return [
                 tfData.reshape<tf.Rank.R3>([this.data.inputData.length, this.data.inputData[0].length, 1]),
                 tfLabels
             ];
         });
+    }
+
+    initialize() {
+        this.generateTestingData();
 
         this.data.model = tf.sequential();
 
@@ -114,25 +181,32 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
             activation: this.data.activation as any
         }));
 
-        const optimizer = tf.train.adam();
-        this.data.model.compile({
-            optimizer: optimizer,
-            loss: 'categoricalCrossentropy',
-            metrics: ['accuracy'],
-        });
+        this.compileModel();
     }
 
     async step(): Promise<void> {
         (await this.data.model.fit(this.data.trainX, this.data.trainLabels, {
             batchSize: this.data.batchSize,
             epochs: 1,
-            yieldEvery: 125,
             callbacks: {
-                onBatchEnd: () => {
+                onBatchEnd: (batch, logs) => {
                     this.data.model.stopTraining = true;
-                },
-                onYield: async (batch, logs) => {
-                    await tf.nextFrame()
+                    if (logs) {
+                        this.recorder?.record([
+                            {
+                                label: 'Mean Squared Error',
+                                value: logs['mse'],
+                            },
+                            {
+                                label: 'Accuracy',
+                                value: logs['acc'],
+                            },
+                            {
+                                label: 'Loss',
+                                value: logs['loss'],
+                            }
+                        ]);
+                    }
                 }
             }
         }));
@@ -248,7 +322,7 @@ class Tensorflow1dCnnClassifierPluginOptions extends PluginOptions {
                     new NumberOption({
                         id: 'batch',
                         label: 'Choose a batch size',
-                        min: 100,
+                        min: 1,
                         step: 100
                     })
                 ];
