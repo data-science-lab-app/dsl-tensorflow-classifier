@@ -203,7 +203,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", function () {
     });
     describe('after submit input', function () {
         beforeEach(function () {
-            classifier.getInputs().submit(testingInput);
+            classifier.getInputs().submit(JSON.parse(JSON.stringify(testingInput)));
         });
         it('get options should return false for noMore', function () {
             expect(classifier.getOptions().noMore()).toBeFalsy();
@@ -387,7 +387,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", function () {
                             i = 0;
                             _a.label = 1;
                         case 1:
-                            if (!(i < 90)) return [3 /*break*/, 4];
+                            if (!(i < 100)) return [3 /*break*/, 4];
                             return [4 /*yield*/, classifier.step()];
                         case 2:
                             _a.sent();

@@ -1,6 +1,7 @@
 import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
-import { Rank } from '@tensorflow/tfjs';
+import * as tfLayers from '@tensorflow/tfjs-layers';
+import { Rank, Variable, NamedTensorMap } from '@tensorflow/tfjs';
 import { TensorflowIOHandler } from './tensorflow-io.handler';
 
 interface Tensorflow1dCnnClassifierInput {
@@ -69,7 +70,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
 
     async export(minimal: boolean): Promise<string> {
         const handler = new TensorflowIOHandler();
-        await this.data.model.save(handler);
+        await handler.saveModel(this.data.model);
         if (minimal) {
             const data: Tensorflow1dCnnClassifierMinimalData = {
                 labels: this.data.labels,

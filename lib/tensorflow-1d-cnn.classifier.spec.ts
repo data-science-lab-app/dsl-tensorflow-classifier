@@ -174,7 +174,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
 
     describe('after submit input', () => {
         beforeEach(() => {
-            classifier.getInputs().submit(testingInput);
+            classifier.getInputs().submit(JSON.parse(JSON.stringify(testingInput)));
         });
 
         it('get options should return false for noMore', () => {
@@ -295,7 +295,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             });
             
             it('train most export and import without minimial should be able to train rest', async () => {
-                for (let i = 0; i < 90; ++i) {
+                for (let i = 0; i < 100; ++i) {
                     await classifier.step();
                 }
                 const json = await classifier.export(false);

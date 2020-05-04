@@ -28,8 +28,9 @@
     }
   ],
   "dependencies": {
-    "data-science-lab-core": "^0.0.30",
-    "@tensorflow/tfjs": "^1.7.3"
+    "@tensorflow/tfjs": "^1.7.3",
+    "@tensorflow/tfjs-layers": "^1.7.3",
+    "data-science-lab-core": "^0.0.30"
   },
   "devDependencies": {
     "@types/node": "^12.11.1",

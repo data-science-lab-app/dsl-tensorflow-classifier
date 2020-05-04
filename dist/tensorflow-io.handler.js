@@ -40,6 +40,64 @@ var TensorflowIOHandler = /** @class */ (function () {
     function TensorflowIOHandler(json) {
         this.json = json;
     }
+    TensorflowIOHandler.prototype.saveModel = function (model) {
+        return __awaiter(this, void 0, void 0, function () {
+            var artifact, json, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        artifact = {
+                            modelTopology: model.toJSON({}, false),
+                            format: 'layers-model',
+                            generatedBy: "TensorFlow.js tfjs-layers v1.7.3",
+                            convertedBy: null,
+                            userDefinedMetadata: model.getUserDefinedMetadata(),
+                            weightSpecs: model.getWeights().map(function (value) {
+                                var variable = value;
+                                return {
+                                    name: variable.name,
+                                    shape: variable.shape,
+                                    dtype: variable.dtype
+                                };
+                            })
+                        };
+                        model.getWeights();
+                        _a = {
+                            artifact: artifact
+                        };
+                        return [4 /*yield*/, this.encodeWeights(model.getWeights())];
+                    case 1:
+                        json = (_a.weights = _b.sent(),
+                            _a);
+                        this.json = JSON.stringify(json);
+                        return [2 /*return*/, this.json];
+                }
+            });
+        });
+    };
+    TensorflowIOHandler.prototype.encodeWeights = function (tensors) {
+        return __awaiter(this, void 0, void 0, function () {
+            var data, totalByteLength, y, offset;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Promise.all(tensors.map(function (t) { return t.data(); }))];
+                    case 1:
+                        data = _a.sent();
+                        totalByteLength = 0;
+                        data.forEach(function (datum) {
+                            totalByteLength += datum.byteLength;
+                        });
+                        y = new Uint8Array(totalByteLength);
+                        offset = 0;
+                        data.forEach(function (x) {
+                            y.set(new Uint8Array(x.buffer), offset);
+                            offset += x.byteLength;
+                        });
+                        return [2 /*return*/, Buffer.from(y.buffer).toString('binary')];
+                }
+            });
+        });
+    };
     Object.defineProperty(TensorflowIOHandler.prototype, "save", {
         get: function () {
             var _this = this;

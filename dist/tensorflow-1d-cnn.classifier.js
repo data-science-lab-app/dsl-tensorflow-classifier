@@ -86,7 +86,7 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         handler = new tensorflow_io_handler_1.TensorflowIOHandler();
-                        return [4 /*yield*/, this.data.model.save(handler)];
+                        return [4 /*yield*/, handler.saveModel(this.data.model)];
                     case 1:
                         _a.sent();
                         if (minimal) {
