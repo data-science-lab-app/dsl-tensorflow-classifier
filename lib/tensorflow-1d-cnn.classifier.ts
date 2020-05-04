@@ -1,7 +1,5 @@
 import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
-import * as tfLayers from '@tensorflow/tfjs-layers';
-import { Rank, Variable, NamedTensorMap } from '@tensorflow/tfjs';
 import { TensorflowIOHandler } from './tensorflow-io.handler';
 
 interface Tensorflow1dCnnClassifierInput {
@@ -126,7 +124,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
         const tfData = tf.tensor2d(argumentInput, [1, argumentInput[0].length]);
         const testInput = tfData.reshape<tf.Rank.R3>([1, argumentInput[0].length, 1]);
 
-        const testOutput = this.data.model.predict(testInput) as tf.Tensor<Rank.R2>;
+        const testOutput = this.data.model.predict(testInput) as tf.Tensor<tf.Rank.R2>;
         const output = testOutput.arraySync()[0];
         return {
             'output': [this.data.labels[output.indexOf(Math.max(...output))]]

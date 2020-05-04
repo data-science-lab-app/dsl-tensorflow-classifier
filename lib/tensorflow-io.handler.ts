@@ -46,7 +46,8 @@ export class TensorflowIOHandler implements tf.io.IOHandler {
         data.forEach((x) => {
             y.set(new Uint8Array(x.buffer), offset);
             offset += x.byteLength;
-        })
+        });
+        
         return Buffer.from(y.buffer).toString('binary');
     }
 
