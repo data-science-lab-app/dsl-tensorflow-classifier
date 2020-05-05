@@ -68,7 +68,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
 
     async export(minimal: boolean): Promise<string> {
         const handler = new TensorflowIOHandler();
-        await handler.saveModel(this.data.model);
+        await this.data.model.save(handler);
         if (minimal) {
             const data: Tensorflow1dCnnClassifierMinimalData = {
                 labels: this.data.labels,
