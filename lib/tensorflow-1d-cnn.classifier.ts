@@ -1,6 +1,10 @@
 import { AlgorithmPlugin, PluginOptions, PluginInputs, Option, RecorderService, PluginData, PluginDataInput, NumberOption, ChoicesOption, CommandOption, TextOption } from 'data-science-lab-core';
 import * as tf from '@tensorflow/tfjs';
+import * as tfCore from '@tensorflow/tfjs-core';
 import { TensorflowIOHandler } from './tensorflow-io.handler';
+import { NamedTensorMap, tensor } from '@tensorflow/tfjs';
+import { TypedArray } from '@tensorflow/tfjs-core/dist/types';
+import { DTYPE_VALUE_SIZE_MAP } from '@tensorflow/tfjs-core/dist/io/types';
 
 interface Tensorflow1dCnnClassifierInput {
     inputData: number[][];
@@ -66,47 +70,194 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
         return false;
     }
 
+    async saveModel(model: tf.Sequential): Promise<string> {
+        const artifact: tf.io.ModelArtifacts = {
+            modelTopology: model.toJSON({}, false),
+            format: 'layers-model',
+            generatedBy: "TensorFlow.js tfjs-layers v1.7.3",
+            convertedBy: null,
+            userDefinedMetadata: model.getUserDefinedMetadata(),
+            weightSpecs: model.getWeights().map((value) => {
+                const variable = value as tf.Variable;
+                return {
+                    name: variable.name,
+                    shape: variable.shape,
+                    dtype: variable.dtype as any
+                }
+            })
+        };
+        model.getWeights()
+        const json = {
+            artifact,
+            weights: await this.encodeWeights(model.getWeights())
+        };
+        return JSON.stringify(json);
+    }
+
+    async encodeWeights(tensors: tf.Tensor<tf.Rank>[]): Promise<string> {
+        const data = await Promise.all(tensors.map(t => t.data()));
+        let totalByteLength = 0;
+        data.forEach(datum => {
+            totalByteLength += datum.byteLength;
+        });
+        const y = new Uint8Array(totalByteLength);
+        let offset = 0;
+        data.forEach((x) => {
+            y.set(new Uint8Array(x.buffer), offset);
+            offset += x.byteLength;
+        });
+
+        const out = Buffer.from(y.buffer).toString('binary'); 
+        return out;
+    }
+
+    async decodeWeights(weights: string, specs: tfCore.io.WeightsManifestEntry[]): Promise<tf.Tensor[]> {
+        const temp = Buffer.from(weights, 'binary');
+        const buffer = temp.buffer.slice(temp.byteOffset, temp.byteOffset + temp.byteLength);
+        const out: tf.Tensor[] = [];
+        let offset = 0;
+        for (const spec of specs) {
+            const dtype = spec.dtype;
+            const shape = spec.shape;
+            const size = tfCore.util.sizeFromShape(shape);
+            let values: TypedArray | string[] | Uint8Array[];
+
+            const dtypeFactor = DTYPE_VALUE_SIZE_MAP[dtype];
+            const byteBuffer = buffer.slice(offset, offset + size * dtypeFactor);
+            values = new Float32Array(byteBuffer);
+
+            offset += size * dtypeFactor;
+
+            out.push(tensor(values, shape, dtype));
+        }
+        return out;
+    }
+
+
+    // async export(minimal: boolean): Promise<string> {
+    //     const handler = new TensorflowIOHandler();
+    //     // const temp = this.decodeWeights('', []);
+    //     // this.data.model.setWeights(temp);
+    //     await this.data.model.save(handler);
+    //     if (minimal) {
+    //         const data: Tensorflow1dCnnClassifierMinimalData = {
+    //             labels: this.data.labels,
+    //             model_config: handler.json as string
+    //         };
+    //         return JSON.stringify(data);
+    //     } else {
+    //         const data: Tensorflow1dCnnClassifierData = {
+    //             batchSize: this.data.batchSize,
+    //             inputData: this.data.inputData,
+    //             inputLabels: this.data.inputLabels,
+    //             labels: this.data.labels,
+    //             model_config: handler.json as string
+
+    //         };
+    //         return JSON.stringify(data);
+    //     }
+    // }
     async export(minimal: boolean): Promise<string> {
-        const handler = new TensorflowIOHandler();
-        await this.data.model.save(handler);
+        const weights = await this.encodeWeights(this.data.model.getWeights());
+        const specs = this.data.model.getWeights().map((value) => {
+            const variable = value as tf.Variable;
+            return {
+                name: variable.name,
+                shape: variable.shape,
+                dtype: variable.dtype as any
+            }
+        });
+
         if (minimal) {
-            const data: Tensorflow1dCnnClassifierMinimalData = {
+            const data = {
                 labels: this.data.labels,
-                model_config: handler.json as string
+                weights,
+                specs,
+                activation: this.data.activation,
+                inputShape: [this.data.inputData[0].length, 1]
             };
             return JSON.stringify(data);
         } else {
-            const data: Tensorflow1dCnnClassifierData = {
+            const data = {
+                labels: this.data.labels,
+                weights,
+                specs,
+                activation: this.data.activation,
+                inputShape: [this.data.inputData[0].length, 1],
                 batchSize: this.data.batchSize,
                 inputData: this.data.inputData,
                 inputLabels: this.data.inputLabels,
-                labels: this.data.labels,
-                model_config: handler.json as string
-
             };
             return JSON.stringify(data);
         }
     }
 
     async import(json: string, minimal: boolean): Promise<Tensorflow1dCnnClassifier> {
-        if (minimal) {
-            const data = JSON.parse(json) as Tensorflow1dCnnClassifierMinimalData;
-            this.data.labels = data.labels;
-            const handler = new TensorflowIOHandler(data.model_config);
-            this.data.model = await (tf.loadLayersModel(handler, { strict: false })) as tf.Sequential;
-        } else {
-            const data = JSON.parse(json) as Tensorflow1dCnnClassifierData;
+        const data: any = JSON.parse(json);
+        this.data.labels = data.labels;
+        this.data.activation = data.activation;
+        const shape = data.inputShape as number[];
+
+        this.data.model = tf.sequential();
+
+        this.data.model.add(tf.layers.conv1d({
+            inputShape: shape,
+            kernelSize: 5,
+            filters: 8,
+            strides: 1,
+            activation: 'relu',
+            kernelInitializer: 'varianceScaling'
+        }));
+        this.data.model.add(tf.layers.maxPooling1d({ poolSize: 2, strides: 2 }));
+
+        this.data.model.add(tf.layers.conv1d({
+            kernelSize: 5,
+            filters: 16,
+            strides: 1,
+            activation: 'relu',
+            kernelInitializer: 'varianceScaling'
+        }));
+        this.data.model.add(tf.layers.maxPooling1d({ poolSize: 2, strides: 2 }));
+
+        this.data.model.add(tf.layers.flatten());
+        this.data.model.add(tf.layers.dense({
+            units: this.data.labels.length,
+            kernelInitializer: 'varianceScaling',
+            activation: this.data.activation as any
+        }));
+
+        this.data.model.setWeights(await this.decodeWeights(data.weights, data.specs));
+            
+        if (!minimal) {
             this.data.labels = data.labels;
             this.data.batchSize = data.batchSize;
             this.data.inputData = data.inputData;
             this.data.inputLabels = data.inputLabels;
-            const handler = new TensorflowIOHandler(data.model_config);
-            this.data.model = await (tf.loadLayersModel(handler, { strict: false })) as tf.Sequential;
             this.generateTestingData();
             this.compileModel();
         }
         return this;
     }
+
+    // async import(json: string, minimal: boolean): Promise<Tensorflow1dCnnClassifier> {
+    //     if (minimal) {
+    //         const data = JSON.parse(json) as Tensorflow1dCnnClassifierMinimalData;
+    //         this.data.labels = data.labels;
+    //         const handler = new TensorflowIOHandler(data.model_config);
+    //         this.data.model = await (tf.loadLayersModel(handler, { strict: true })) as tf.Sequential;
+    //     } else {
+    //         const data = JSON.parse(json) as Tensorflow1dCnnClassifierData;
+    //         this.data.labels = data.labels;
+    //         this.data.batchSize = data.batchSize;
+    //         this.data.inputData = data.inputData;
+    //         this.data.inputLabels = data.inputLabels;
+    //         const handler = new TensorflowIOHandler(data.model_config);
+    //         this.data.model = await (tf.loadLayersModel(handler, { strict: true })) as tf.Sequential;
+    //         this.generateTestingData();
+    //         this.compileModel();
+    //     }
+    //     return this;
+    // }
 
     compileModel() {
         const optimizer = tf.train.adam();

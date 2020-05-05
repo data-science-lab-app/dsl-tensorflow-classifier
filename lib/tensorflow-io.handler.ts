@@ -10,46 +10,77 @@ export class TensorflowIOHandler implements tf.io.IOHandler {
 
     }
 
-    // async saveModel(model: tf.Sequential): Promise<string> {
-    //     const artifact: tf.io.ModelArtifacts = {
-    //         modelTopology: model.toJSON({}, false),
-    //         format: 'layers-model',
-    //         generatedBy: "TensorFlow.js tfjs-layers v1.7.3",
-    //         convertedBy: null,
-    //         userDefinedMetadata: model.getUserDefinedMetadata(),
-    //         weightSpecs: model.getWeights().map((value) => {
-    //             const variable = value as tf.Variable;
-    //             return {
-    //                 name: variable.name,
-    //                 shape: variable.shape,
-    //                 dtype: variable.dtype as any
-    //             }
-    //         })
-    //     };
-    //     model.getWeights()
-    //     const json: ModelJson = {
-    //         artifact,
-    //         weights: await this.encodeWeights(model.getWeights())
-    //     };
-    //     this.json = JSON.stringify(json);
-    //     return this.json;
-    // }
+    async saveModel(model: tf.Sequential): Promise<string> {
+        const artifact: tf.io.ModelArtifacts = {
+            modelTopology: model.toJSON({}, false),
+            format: 'layers-model',
+            generatedBy: "TensorFlow.js tfjs-layers v1.7.3",
+            convertedBy: null,
+            userDefinedMetadata: model.getUserDefinedMetadata(),
+            weightSpecs: model.getWeights().map((value) => {
+                const variable = value as tf.Variable;
+                return {
+                    name: variable.name,
+                    shape: variable.shape,
+                    dtype: variable.dtype as any
+                }
+            })
+        };
+        model.getWeights()
+        const json: ModelJson = {
+            artifact,
+            weights: await this.encodeWeights(model.getWeights())
+        };
+        this.json = JSON.stringify(json);
+        return this.json;
+    }
 
-    // async encodeWeights(tensors: tf.Tensor<tf.Rank>[]): Promise<string> {
-    //     const data = await Promise.all(tensors.map(t => t.data()));
-    //     let totalByteLength = 0;
-    //     data.forEach(datum => {
-    //         totalByteLength += datum.byteLength;
-    //     });
-    //     const y = new Uint8Array(totalByteLength);
-    //     let offset = 0;
-    //     data.forEach((x) => {
-    //         y.set(new Uint8Array(x.buffer), offset);
-    //         offset += x.byteLength;
-    //     });
+    async encodeWeights(tensors: tf.Tensor<tf.Rank>[]): Promise<string> {
+        const data = await Promise.all(tensors.map(t => t.data()));
+        let totalByteLength = 0;
+        data.forEach(datum => {
+            totalByteLength += datum.byteLength;
+        });
+        const y = new Uint8Array(totalByteLength);
+        let offset = 0;
+        data.forEach((x) => {
+            y.set(new Uint8Array(x.buffer), offset);
+            offset += x.byteLength;
+        });
         
-    //     return Buffer.from(y.buffer).toString('binary');
-    // }
+        return Buffer.from(y.buffer).toString('binary');
+    }
+
+
+
+    correctArtifact(modelArtifact: tf.io.ModelArtifacts): tf.io.ModelArtifacts {
+        const obj = modelArtifact.modelTopology as any;
+        return {
+            convertedBy: modelArtifact.convertedBy,
+            format: modelArtifact.format,
+            generatedBy: modelArtifact.generatedBy,
+            trainingConfig: modelArtifact.trainingConfig,
+            userDefinedMetadata: modelArtifact.userDefinedMetadata,
+            weightSpecs: modelArtifact.weightSpecs,
+            modelTopology: {
+                ...obj,
+                config: {
+                    name: obj.config.name.substring(0, obj.config.name.lastIndexOf('_')), 
+                    layers: (obj.config.layers).map((layer: any) => {
+                        const class_name: string = layer.class_name;
+                        const config_name: string    = layer.config.name;
+                        return {
+                            class_name,
+                            config: {
+                                ...layer.config,
+                                name: `${config_name.substring(0, config_name.lastIndexOf('_'))}_${class_name}`
+                            }
+                        };
+                    })
+                },
+            },
+        }
+    }
 
     get save(): tf.io.SaveHandler {
         return (modelArtifact: tf.io.ModelArtifacts): Promise<tf.io.SaveResult> => {
@@ -62,6 +93,7 @@ export class TensorflowIOHandler implements tf.io.IOHandler {
                     data.weights = await this.saveWeights(weightData);
                     data.artifact.weightData = undefined;
                 }
+                console.log(`${JSON.stringify((data.artifact.modelTopology as any).config as any)}`);
                 this.json = JSON.stringify(data);
                 resolve();
             });

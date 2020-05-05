@@ -269,7 +269,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             });
 
             it('training few steps should be able to predict the training set', async () => {
-                for (let i = 0; i < 100; ++i) {
+                for (let i = 0; i < 110; ++i) {
                     await classifier.step();
                 }
                 for (let i = 0; i < testingInput.output.examples.length; ++i) {
@@ -312,7 +312,7 @@ describe("Tesnorflow 1d CNN Classifier Tests", () => {
             });
     
             it('testing after export minimal should still work', async () => {
-                for (let i = 0; i < 100; ++i) {
+                for (let i = 0; i < 110; ++i) {
                     await classifier.step();
                 } 
                 const json = await classifier.export(true);
