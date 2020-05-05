@@ -93,7 +93,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
             const data = JSON.parse(json) as Tensorflow1dCnnClassifierMinimalData;
             this.data.labels = data.labels;
             const handler = new TensorflowIOHandler(data.model_config);
-            this.data.model = await (tf.loadLayersModel(handler)) as tf.Sequential;
+            this.data.model = await (tf.loadLayersModel(handler, { strict: false })) as tf.Sequential;
         } else {
             const data = JSON.parse(json) as Tensorflow1dCnnClassifierData;
             this.data.labels = data.labels;
@@ -101,7 +101,7 @@ export class Tensorflow1dCnnClassifier extends AlgorithmPlugin {
             this.data.inputData = data.inputData;
             this.data.inputLabels = data.inputLabels;
             const handler = new TensorflowIOHandler(data.model_config);
-            this.data.model = (await tf.loadLayersModel(handler)) as tf.Sequential;
+            this.data.model = await (tf.loadLayersModel(handler, { strict: false })) as tf.Sequential;
             this.generateTestingData();
             this.compileModel();
         }

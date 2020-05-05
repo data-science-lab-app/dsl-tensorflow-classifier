@@ -122,7 +122,7 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                         this.data.labels = data.labels;
                         handler = new tensorflow_io_handler_1.TensorflowIOHandler(data.model_config);
                         _a = this.data;
-                        return [4 /*yield*/, (tf.loadLayersModel(handler))];
+                        return [4 /*yield*/, (tf.loadLayersModel(handler, { strict: false }))];
                     case 1:
                         _a.model = (_c.sent());
                         return [3 /*break*/, 4];
@@ -134,7 +134,7 @@ var Tensorflow1dCnnClassifier = /** @class */ (function (_super) {
                         this.data.inputLabels = data.inputLabels;
                         handler = new tensorflow_io_handler_1.TensorflowIOHandler(data.model_config);
                         _b = this.data;
-                        return [4 /*yield*/, tf.loadLayersModel(handler)];
+                        return [4 /*yield*/, (tf.loadLayersModel(handler, { strict: false }))];
                     case 3:
                         _b.model = (_c.sent());
                         this.generateTestingData();
