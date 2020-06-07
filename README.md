@@ -1,4 +1,4 @@
-<img src="https://3.bp.blogspot.com/-d-nV7xJRmpw/Xo328dcAx3I/AAAAAAAAC7Q/qlqJOle6XIosJ3CGIDJ04F3Voh1iXDg0gCLcBGAsYHQ/s1600/TF_FullColor_Icon.jpg" width="150" height="150" />
+<img src="https://banner2.cleanpng.com/20180805/ipw/kisspng-tensorflow-artificial-intelligence-brand-logo-lear-rapidswitch-nvidia-powered-servers-5b6715663b0830.0909969615334823422418.jpg" width="400" height="150" />
 
 # Data Science Lab's Tensorflow Classifiers
 Data Science Lab's plugin using tensorflow to classify labels from features.  
