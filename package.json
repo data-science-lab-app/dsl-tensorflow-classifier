@@ -28,8 +28,8 @@
     }
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^1.7.4",
-    "@tensorflow/tfjs-core": "1.7.4",
+    "@tensorflow/tfjs": "^4.20.0",
+    "@tensorflow/tfjs-core": "4.20.0",
     "data-science-lab-core": "^0.0.30"
   },
   "devDependencies": {
